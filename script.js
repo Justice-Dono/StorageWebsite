@@ -22,18 +22,10 @@ async function uploadFile() {
 
     const text = await res.text();
 
-    // IMPORTANT: log raw response for debugging
-    console.log("Response status:", res.status);
-    console.log("Response text:", text);
+    status.innerText = text;
 
-    if (!res.ok) {
-      status.innerText = `Upload failed: ${text}`;
-      return;
-    }
-
-    status.innerText = "Upload successful!";
   } catch (err) {
     console.error(err);
-    status.innerText = "Network error during upload";
+    status.innerText = "Upload failed";
   }
 }
