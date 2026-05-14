@@ -1,56 +1,37 @@
-export default {
-  async fetch(request, env) {
+window.uploadFile = async function () {
 
-    console.log("REQUEST RECEIVED:", request.method);
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "*"
-        }
-      });
-    }
+  const fileInput = document.getElementById("fileInput");
+  const status = document.getElementById("status");
 
-    if (request.method === "POST") {
-      try {
-        const formData = await request.formData();
-        const file = formData.get("file");
-        
-        console.log("FILE:", file?.name);
+  const file = fileInput.files[0];
 
-        if (!file) {
-          return new Response("No file", { status: 400 });
-        }
-        console.log("SIZE:", file.size);
-        console.log("TYPE:", file.type);
-        await env.MY_BUCKET.put(file.name, file.stream());
-
-        console.log("UPLOAD SUCCESS");
-
-        return new Response("Upload successful", {
-          status: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "*"
-          }
-        });
-
-      } catch (err) {
-        console.log("ERROR:", err);
-
-        return new Response("Worker error", {
-          status: 500,
-          headers: {
-            "Access-Control-Allow-Origin": "*"
-          }
-        });
-      }
-    }
-
-    return new Response("Worker running", {
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      }
-    });
+  if (!file) {
+    status.innerText = "Please select a file";
+    return;
   }
-}
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  status.innerText = "Uploading...";
+
+  try {
+    const res = await fetch("YOUR_WORKER_URL", {
+      method: "POST",
+      body: formData
+    });
+
+    const text = await res.text();
+    console.log("Worker response:", text);
+
+    if (!res.ok) {
+      status.innerText = "Upload failed: " + text;
+      return;
+    }
+
+    status.innerText = "Upload successful!";
+  } catch (err) {
+    console.error(err);
+    status.innerText = "Network error";
+  }
+};
