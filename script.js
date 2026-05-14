@@ -11,18 +11,19 @@ export default {
         }
       });
     }
-    
+
     if (request.method === "POST") {
       try {
         const formData = await request.formData();
         const file = formData.get("file");
-
+        
         console.log("FILE:", file?.name);
 
         if (!file) {
           return new Response("No file", { status: 400 });
         }
-
+        console.log("SIZE:", file.size);
+        console.log("TYPE:", file.type);
         await env.MY_BUCKET.put(file.name, file.stream());
 
         console.log("UPLOAD SUCCESS");
