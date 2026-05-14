@@ -15,17 +15,25 @@ async function uploadFile() {
   status.innerText = "Uploading...";
 
   try {
-    const res = await fetch("https://clean-upload-api.jordan-tewnion.workers.dev/", {
+    const res = await fetch("YOUR_WORKER_URL", {
       method: "POST",
       body: formData
     });
 
     const text = await res.text();
 
-    status.innerText = text;
+    // IMPORTANT: log raw response for debugging
+    console.log("Response status:", res.status);
+    console.log("Response text:", text);
 
+    if (!res.ok) {
+      status.innerText = `Upload failed: ${text}`;
+      return;
+    }
+
+    status.innerText = "Upload successful!";
   } catch (err) {
     console.error(err);
-    status.innerText = "Upload failed";
+    status.innerText = "Network error during upload";
   }
 }
