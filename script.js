@@ -1,31 +1,55 @@
-async function uploadFile() {
-  const fileInput = document.getElementById("fileInput");
-  const status = document.getElementById("status");
+export default {
+  async fetch(request, env) {
 
-  const file = fileInput.files[0];
+    console.log("REQUEST RECEIVED:", request.method);
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "*"
+        }
+      });
+    }
+    
+    if (request.method === "POST") {
+      try {
+        const formData = await request.formData();
+        const file = formData.get("file");
 
-  if (!file) {
-    status.innerText = "Please select a file";
-    return;
-  }
+        console.log("FILE:", file?.name);
 
-  const formData = new FormData();
-  formData.append("file", file);
+        if (!file) {
+          return new Response("No file", { status: 400 });
+        }
 
-  status.innerText = "Uploading...";
+        await env.MY_BUCKET.put(file.name, file.stream());
 
-  try {
-    const res = await fetch("YOUR_WORKER_URL", {
-      method: "POST",
-      body: formData
+        console.log("UPLOAD SUCCESS");
+
+        return new Response("Upload successful", {
+          status: 200,
+          headers: {
+            "Access-Control-Allow-Origin": "*"
+          }
+        });
+
+      } catch (err) {
+        console.log("ERROR:", err);
+
+        return new Response("Worker error", {
+          status: 500,
+          headers: {
+            "Access-Control-Allow-Origin": "*"
+          }
+        });
+      }
+    }
+
+    return new Response("Worker running", {
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      }
     });
-
-    const text = await res.text();
-
-    status.innerText = text;
-
-  } catch (err) {
-    console.error(err);
-    status.innerText = "Upload failed";
   }
 }
