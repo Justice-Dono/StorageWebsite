@@ -3,33 +3,40 @@ window.uploadFile = async function () {
   const fileInput = document.getElementById("fileInput");
   const status = document.getElementById("status");
 
-  const file = fileInput.files[0];
+  const files = fileInput.files;
 
-  if (!file) {
-    status.innerText = "Please select a file";
+  if (files.length === 0) {
+    status.innerText = "Please select files";
     return;
   }
 
   const formData = new FormData();
-  formData.append("file", file);
 
-  status.innerText = "Uploading...";
+  // Add all files
+  for (const file of files) {
+    formData.append("files", file);
+  }
+
+  status.innerText = `Uploading ${files.length} file(s)...`;
 
   try {
-    const res = await fetch("https://clean-upload-api.jordan-tewnion.workers.dev/", {
+
+    const res = await fetch("YOUR_WORKER_URL", {
       method: "POST",
       body: formData
     });
 
     const text = await res.text();
-    console.log("Worker response:", text);
+
+    console.log("Response:", text);
 
     if (!res.ok) {
-      status.innerText = "Upload failed: " + text;
+      status.innerText = "Upload failed";
       return;
     }
 
-    status.innerText = "Upload successful!";
+    status.innerText = `Uploaded ${files.length} file(s)!`;
+
   } catch (err) {
     console.error(err);
     status.innerText = "Network error";
