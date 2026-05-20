@@ -21,7 +21,7 @@ window.uploadFile = async function () {
 
   try {
 
-    const res = await fetch("YOUR_WORKER_URL", {
+    const res = await fetch("https://clean-upload-api.jordan-tewnion.workers.dev/", {
       method: "POST",
       body: formData
     });
